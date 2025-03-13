@@ -1,27 +1,32 @@
-name: NodeJS with Webpack
-'on':
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version:
-          - 18.x
-          - 20.x
-          - 22.x
-    steps:
-      - uses: actions/checkout@v4
-      - name: 'Use Node.js ${{ matrix.node-version }}'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '${{ matrix.node-version }}'
-      - name: Build
-        run: |
-          npm install
-          npx webpack
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hello-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: hello-world
+    spec:
+      containers:
+      - name: hello
+        image: nginxdemos/hello:latest
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+  labels:
+    run: hello-world
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: hello-world
